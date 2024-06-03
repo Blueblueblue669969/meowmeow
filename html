@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Server Listing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .server-list {
+            margin-top: 30px;
+        }
+        .server-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .warning {
+            color: red;
+        }
+        .dark-theme {
+            background-color: #333;
+            color: #fff;
+        }
+        .toggle-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Discord Server Listing</h1>
+        <div class="form-group">
+            <label for="serverName">Server Name:</label>
+            <input type="text" id="serverName">
+        </div>
+        <div class="form-group">
+            <label for="serverDescription">Server Description:</label>
+            <input type="text" id="serverDescription">
+        </div>
+        <div class="form-group">
+            <label for="inviteLink">Discord Invite Link:</label>
+            <input type="text" id="inviteLink">
+        </div>
+        <button onclick="addServer()">Add Server</button>
+        <p class="warning" id="warning" style="display: none;">Invalid Discord link. It must contain "discord.gg".</p>
+        
+        <div class="server-list" id="serverList"></div>
+        
+        <div class="toggle-button">
+            <label for="themeToggle">Dark Theme:</label>
+            <input type="checkbox" id="themeToggle" onclick="toggleTheme()">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            loadServers();
+            applyTheme();
+        });
+
+        function addServer() {
+            const serverName = document.getElementById('serverName').value;
+            const serverDescription = document.getElementById('serverDescription').value;
+            const inviteLink = document.getElementById('inviteLink').value;
+            const warning = document.getElementById('warning');
+            
+            if (!inviteLink.includes('discord.gg')) {
+                warning.style.display = 'block';
+                return;
+            }
+            
+            warning.style.display = 'none';
+            
+            const servers = JSON.parse(localStorage.getItem('servers')) || [];
+            servers.push({ name: serverName, description: serverDescription, link: inviteLink });
+            localStorage.setItem('servers', JSON.stringify(servers));
+            
+            document.getElementById('serverName').value = '';
+            document.getElementById('serverDescription').value = '';
+            document.getElementById('inviteLink').value = '';
+            
+            loadServers();
+        }
+
+        function loadServers() {
+            const serverList = document.getElementById('serverList');
+            serverList.innerHTML = '';
+            const servers = JSON.parse(localStorage.getItem('servers')) || [];
+            
+            servers.forEach((server, index) => {
+                const serverItem = document.createElement('div');
+                serverItem.className = 'server-item';
+                serverItem.innerHTML = `
+                    <h3>${server.name}</h3>
+                    <p>${server.description}</p>
+                    <a href="${server.link}" target="_blank">Join Server</a>
+                `;
+                serverList.appendChild(serverItem);
+            });
+        }
+
+        function toggleTheme() {
+            const isChecked = document.getElementById('themeToggle').checked;
+            localStorage.setItem('darkTheme', isChecked);
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const isDarkTheme = JSON.parse(localStorage.getItem('darkTheme'));
+            if (isDarkTheme) {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeToggle').checked = true;
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('themeToggle').checked = false;
+            }
+        }
+    </script>
+</body>
+</html>
